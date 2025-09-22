@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 
 from infrastructure import UserModel
-from .exceptions import UserAlreadyExistsException
+from .exceptions import UserEmailAlreadyExistsException
 
 
 def validate_email(session: Session, email: str, exclude_id: Optional[UUID] = None):
@@ -16,4 +16,4 @@ def validate_email(session: Session, email: str, exclude_id: Optional[UUID] = No
     user = session.query(UserModel).where(*filters).first()
 
     if user:
-        raise UserAlreadyExistsException()
+        raise UserEmailAlreadyExistsException()

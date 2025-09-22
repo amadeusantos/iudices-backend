@@ -1,6 +1,6 @@
 from ..exceptions import ApiException
 
 
-class UserAlreadyExistsException(ApiException):
+class UserEmailAlreadyExistsException(ApiException):
     def __init__(self):
-        super().__init__(409, "User already exists!")
+        super().__init__(409, "User email already exists!")
