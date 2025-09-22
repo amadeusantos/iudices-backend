@@ -7,7 +7,7 @@ from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from infrastructure import UserModel, open_db_session
-from .schemas import UserPaginationSchema
+from .schemas import UserPaginationSchema, UserCreateSchema, UserSchema
 from .validations import validate_email
 from ..authentication import authenticated
 from ..database import pagination
@@ -45,3 +45,18 @@ def check_email(
 ):
     validate_email(session, email, exclude_id)
     return
+
+
+@router.post("", response_model=UserSchema)
+def create_user(
+    content: UserCreateSchema,
+    session: Session = Depends(open_db_session),
+    _: UserPrincipal = Depends(authenticated),
+):
+    validate_email(session, content.email)
+    user = UserModel(**content.model_dump())
+    session.add(user)
+    session.commit()
+
+    session.refresh(user)
+    return user
