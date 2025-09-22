@@ -13,10 +13,10 @@ from api.schemas import UserPrincipal
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
-@router.post("/token")
+@router.post("/token", response_model=LoginResponse)
 def login_via_google(
     request: LoginRequest, session: Session = Depends(open_db_session)
-) -> LoginResponse:
+):
     tokens = httpx.post(
         "https://oauth2.googleapis.com/token",
         data={
@@ -65,7 +65,7 @@ def login_via_google(
     return tokens
 
 
-@router.get("/authenticated")
+@router.get("/authenticated", response_model=UserPrincipal)
 def authenticated(
     user_principal: UserPrincipal = Depends(authenticated),
 ) -> UserPrincipal:
