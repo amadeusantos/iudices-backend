@@ -10,7 +10,7 @@ from .exceptions import LoginException
 from .schemas import LoginRequest, LoginResponse
 from api.schemas import UserPrincipal
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
 @router.post("/token")

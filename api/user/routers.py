@@ -13,7 +13,7 @@ from ..authentication import authenticated
 from ..database import pagination
 from ..schemas import UserPrincipal
 
-router = APIRouter(prefix="/users", tags=["user"])
+router = APIRouter(prefix="/users", tags=["Users"])
 
 
 @router.get("", response_model=UserPaginationSchema)
