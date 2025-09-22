@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
@@ -18,3 +18,10 @@ class UserPrincipal(BaseSchema):
     email: Optional[str] = None
     google_openid: Optional[str] = None
 
+
+class PaginationSchema(BaseSchema):
+    page: int
+    size: int
+    total_items: int
+    total_pages: int
+    results: List[BaseSchema]
