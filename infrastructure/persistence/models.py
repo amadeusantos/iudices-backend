@@ -20,7 +20,7 @@ class EntityBase:
 class UserModel(EntityBase, Entity):
     __tablename__ = "users"
     name = Column(String(64), nullable=False)
-    picture = Column(String(64))
+    picture = Column(String)
     email = Column(String(64), unique=True, nullable=False, index=True)
     google_openid = Column(String(64), unique=True, index=True)
 
