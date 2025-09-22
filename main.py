@@ -2,19 +2,25 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
 
-from api import auth_router
+from api import auth_router, user_router
 from api.exceptions import ApiException
 
 app = FastAPI()
 
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+app.add_middleware(
+    CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"]
+)
+
 
 @app.get("/health")
 async def health():
     return {"status": "healthy"}
 
+
 @app.exception_handler(ApiException)
 async def service_exception_handler(_, exc: ApiException):
     return JSONResponse(status_code=exc.status_code, content={"message": exc.message})
 
+
 app.include_router(auth_router)
+app.include_router(user_router)

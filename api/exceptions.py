@@ -7,3 +7,7 @@ class ApiException(Exception):
 class TokenInvalidException(ApiException):
     def __init__(self):
         super().__init__(401, "token invalid")
+
+class UnauthorizedException(ApiException):
+    def __init__(self):
+        super().__init__(401, "unauthorized")

@@ -1,18 +1,23 @@
 import httpx
 from fastapi import APIRouter
 from fastapi.params import Depends
+from sqlalchemy.orm import Session
 
-from api.auth.exceptions import LoginException
-from api.auth.schemas import LoginRequest, LoginResponse
 from api.authentication import authenticated
 from config import envSettings
+from infrastructure import open_db_session, UserModel
+from .exceptions import LoginException
+from .schemas import LoginRequest, LoginResponse
+from api.schemas import UserPrincipal
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
-@router.post("/token")
-def login_via_google(request: LoginRequest) -> LoginResponse:
-    response = httpx.post(
+@router.post("/token", response_model=LoginResponse)
+def login_via_google(
+    request: LoginRequest, session: Session = Depends(open_db_session)
+):
+    tokens = httpx.post(
         "https://oauth2.googleapis.com/token",
         data={
             "code": request.code,
@@ -23,12 +28,45 @@ def login_via_google(request: LoginRequest) -> LoginResponse:
         },
     )
 
-    if response.status_code >= httpx.codes.BAD_REQUEST:
-        raise LoginException(response)
+    if tokens.status_code >= httpx.codes.BAD_REQUEST:
+        raise LoginException(tokens)
 
-    return response.json()
+    tokens = tokens.json()
+
+    userinfo = httpx.get(
+        "https://www.googleapis.com/oauth2/v2/userinfo?alt=json",
+        headers={"Authorization": "Bearer " + tokens["access_token"]},
+    )
+
+    if userinfo.status_code >= httpx.codes.BAD_REQUEST:
+        raise LoginException(userinfo)
+
+    userinfo = userinfo.json()
+
+    user = session.query(UserModel).where(UserModel.email == userinfo["email"]).first()
+
+    if user:
+        user.name = userinfo["name"]
+        user.email = userinfo["email"]
+        user.google_openid = str(userinfo["id"])
+        user.picture = userinfo["picture"]
+    else:
+        user = UserModel(
+            name=userinfo["name"],
+            email=userinfo["email"],
+            google_openid=str(userinfo["id"]),
+            picture=userinfo["picture"],
+        )
+
+        session.add(user)
+
+    session.commit()
+
+    return tokens
 
 
-@router.get("/authenticated")
-def authenticated(user_principal: int = Depends(authenticated)):
+@router.get("/authenticated", response_model=UserPrincipal)
+def authenticated(
+    user_principal: UserPrincipal = Depends(authenticated),
+) -> UserPrincipal:
     return user_principal
