@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import Field, EmailStr
 
-from ..schemas import PaginationSchema, BaseSchema
+from ..schemas import PaginationSchema, BaseSchema, InputSchema
 
 
 class UserSchema(BaseSchema):
@@ -11,7 +11,7 @@ class UserSchema(BaseSchema):
     email: str
     name: str
 
-class UserCreateSchema(BaseSchema):
+class UserCreateSchema(InputSchema):
     email: Annotated[str, EmailStr]
     name: Annotated[str, Field(min_length=3, max_length=64)]
 
