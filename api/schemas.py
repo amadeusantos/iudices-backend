@@ -25,3 +25,9 @@ class PaginationSchema(BaseSchema):
     total_items: int
     total_pages: int
     results: List[BaseSchema]
+
+
+class UserMinimalSchema(BaseSchema):
+    id: Optional[UUID] = None
+    name: Optional[str] = None
+    email: Optional[str] = None
